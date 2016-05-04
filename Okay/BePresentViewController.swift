@@ -14,6 +14,7 @@ class BePresentViewController: UIViewController {
     @IBOutlet weak var countdownLabel: UILabel!
     
     private var exerciseNumber: Int = 1;
+    private var countdown: Int = 5;
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,6 +25,7 @@ class BePresentViewController: UIViewController {
     override func viewWillAppear(animated: Bool) {
         countdownLabel.text = "";
         exerciseNumber = 1;
+        configCircle()
     }
 
     
@@ -33,23 +35,28 @@ class BePresentViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    @IBAction func handleLongPress(sender: UITapGestureRecognizer? = nil) {
-        //TODO: Animate that circle
-        
+    @IBAction func handleTouchDown(sender: UIButton) {
+        NSLog("Touch down");
+        startTimer();
+        startCircleAnimation();
+    }
+    
+    @IBAction func handleTouchEnd(sender: UIButton) {
+        endCircleAnimation();
     }
     
     var circle: CAShapeLayer?
     var drawAnimation: CABasicAnimation?
 
     func configCircle() {
-        let radius: CGFloat = 50.0;
+        let radius: CGFloat = 40.0;
         self.circle = CAShapeLayer();
         self.circle?.path = UIBezierPath(roundedRect: CGRectMake(0, 0, 2.0*radius, 2.0*radius), cornerRadius: radius).CGPath;
 
-        self.circle?.position = CGPointMake(self.countdownLabel.center.x, self.countdownLabel.center.y)
+        self.circle?.position = CGPointMake(self.countdownLabel.frame.origin.x , self.countdownLabel.frame.origin.y)
         self.circle?.fillColor = UIColor.clearColor().CGColor;
         self.circle?.strokeColor = UIColor.grayColor().CGColor;
-        self.circle?.lineWidth = 1.5;
+        self.circle?.lineWidth = 5;
         
         self.circle?.strokeEnd = 0.0;
         
@@ -91,7 +98,7 @@ class BePresentViewController: UIViewController {
         // Configure animation
         self.drawAnimation = CABasicAnimation(keyPath: "strokeEnd");
 
-        self.drawAnimation!.duration            = 10.0;
+        self.drawAnimation!.duration            = 5.0;
         self.drawAnimation!.repeatCount         = 1.0; // Animate only once..
     
     
@@ -101,10 +108,28 @@ class BePresentViewController: UIViewController {
         // Set your to value to one to complete animation
         self.drawAnimation!.toValue   = NSNumber(float:1.0);
         
-        // Experiment with timing to get the appearence to look the way you want
-        self.drawAnimation!.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseIn);
+        // experiment with timing to get the appearence to look the way you want
+        self.drawAnimation!.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionLinear);
         // Add the animation to the circle
         self.circle?.addAnimation(self.drawAnimation!, forKey: "draw");
+        
+    }
+    
+    var timer = NSTimer();
+    
+    func startTimer() {
+        self.timer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(BePresentViewController.timerTick), userInfo: nil, repeats: true);
+        self.timer.fire();
+    }
+    func timerTick() {
+        NSLog("Tick");
+        self.countdownLabel.text = String(countdown);
+        countdown = countdown - 1;
+        if (countdown == 0) {
+            timer.invalidate();
+        }
+
+
     }
     /*
     // MARK: - Navigation
