@@ -42,6 +42,8 @@ class BePresentViewController: UIViewController {
     }
     
     @IBAction func handleTouchEnd(sender: UIButton) {
+        NSLog("Touch End");
+        timer.invalidate();
         endCircleAnimation();
     }
     
@@ -49,11 +51,11 @@ class BePresentViewController: UIViewController {
     var drawAnimation: CABasicAnimation?
 
     func configCircle() {
-        let radius: CGFloat = 40.0;
+        let radius: CGFloat = 42.0;
         self.circle = CAShapeLayer();
         self.circle?.path = UIBezierPath(roundedRect: CGRectMake(0, 0, 2.0*radius, 2.0*radius), cornerRadius: radius).CGPath;
 
-        self.circle?.position = CGPointMake(self.countdownLabel.frame.origin.x , self.countdownLabel.frame.origin.y)
+        self.circle?.position = CGPointMake(self.countdownLabel.frame.origin.x , self.countdownLabel.center.y+20)
         self.circle?.fillColor = UIColor.clearColor().CGColor;
         self.circle?.strokeColor = UIColor.grayColor().CGColor;
         self.circle?.lineWidth = 5;
@@ -122,12 +124,14 @@ class BePresentViewController: UIViewController {
         self.timer.fire();
     }
     func timerTick() {
-        NSLog("Tick");
+        if (countdown == -1) {
+            timer.invalidate();
+            self.countdownLabel.text = "";
+            return;
+        }
         self.countdownLabel.text = String(countdown);
         countdown = countdown - 1;
-        if (countdown == 0) {
-            timer.invalidate();
-        }
+        
 
 
     }
